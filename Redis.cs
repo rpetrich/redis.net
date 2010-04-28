@@ -16,11 +16,17 @@ namespace Redis
     {
         #region Connection handling
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Error)] 
+        [RedisCompatibility(RedisVersion.FirstVersion)]
         public static RedisCommand Quit(this RedisConnection connection)
         {
             return connection.QueueCommand("QUIT");
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
+        [RedisCompatibility(RedisVersion.FirstVersion)]
         public static RedisCommand Auth(this RedisConnection connection, string password)
         {
             return connection.QueueCommand("AUTH", password);
@@ -30,11 +36,15 @@ namespace Redis
 
         #region Commands operating on all the kind of values
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand Exists(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("EXISTS", key);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand Del(this RedisConnection connection, params RedisValue[] keys)
         {
             RedisValue[] parameters = new RedisValue[keys.Length + 1];
@@ -43,66 +53,88 @@ namespace Redis
             return connection.QueueCommand(keys);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand Type(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("TYPE", key);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "number of keys in the database")]
+        [RedisExpectedResult(RedisValueType.Bulk)]
         public static RedisCommand Keys(this RedisConnection connection, string pattern)
         {
             return connection.QueueCommand("KEYS", pattern);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Bulk)]
         public static RedisCommand RandomKey(this RedisConnection connection)
         {
             return connection.QueueCommand("RANDOMKEY");
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand Rename(this RedisConnection connection, RedisValue oldkey, RedisValue newkey)
         {
             return connection.QueueCommand("RENAME", oldkey, newkey);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand RenameNX(this RedisConnection connection, RedisValue oldkey, RedisValue newkey)
         {
             return connection.QueueCommand("RENAMENX", oldkey, newkey);
         }
 
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand DBSize(this RedisConnection connection)
         {
             return connection.QueueCommand("DBSIZE");
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand Expire(this RedisConnection connection, RedisValue key, long seconds)
         {
             return connection.QueueCommand("EXPIRE", key, seconds);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ExpireAt(this RedisConnection connection, RedisValue key, long unixTime)
         {
             return connection.QueueCommand("EXPIREAT", key, unixTime);
         }
 
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand ExpireAt(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("TTL", key);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand Select(this RedisConnection connection, long index)
         {
             return connection.QueueCommand("SELECT", index);
         }
 
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand Move(this RedisConnection connection, RedisValue key, long dbindex)
         {
             return connection.QueueCommand("MOVE", key, dbindex);
         }
 
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand FlushDB(this RedisConnection connection)
         {
             return connection.QueueCommand("FLUSHDB");
         }
 
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand FlushAll(this RedisConnection connection)
         {
             return connection.QueueCommand("FLUSHALL");
@@ -112,26 +144,37 @@ namespace Redis
 
         #region Commands operating on string values
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand Set(this RedisConnection connection, RedisValue key, RedisValue value)
         {
             return connection.QueueCommand("SET", key, value);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
+        [RedisCompatibility(RedisVersion.Head)]
         public static RedisCommand SetEx(this RedisConnection connection, RedisValue key, RedisValue time, RedisValue value)
         {
             return connection.QueueCommand("SETEX", key, time, value);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Bulk)]
         public static RedisCommand Get(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("GET", key);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Bulk)]
         public static RedisCommand GetSet(this RedisConnection connection, RedisValue key, RedisValue value)
         {
             return connection.QueueCommand("GETSET", key, value);
         }
 
+        [RedisComplexity(RedisComplexity.Constant, "every key")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
         public static RedisCommand MGet(this RedisConnection connection, params RedisValue[] keys)
         {
             RedisValue[] parameters = new RedisValue[keys.Length + 1];
@@ -140,11 +183,15 @@ namespace Redis
             return connection.QueueCommand(parameters);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand SetNX(this RedisConnection connection, RedisValue key, RedisValue value)
         {
             return connection.QueueCommand("SETNX", key, value);
         }
 
+        [RedisComplexity(RedisComplexity.Constant, "every key")]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand MSet(this RedisConnection connection, params KeyValuePair<RedisValue, RedisValue>[] values)
         {
             RedisValue[] parameters = new RedisValue[values.Length * 2 + 1];
@@ -159,6 +206,8 @@ namespace Redis
             return connection.QueueCommand(parameters);
         }
 
+        [RedisComplexity(RedisComplexity.Constant, "every key")]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand MSetNX(this RedisConnection connection, params KeyValuePair<RedisValue, RedisValue>[] values)
         {
             RedisValue[] parameters = new RedisValue[values.Length * 2 + 1];
@@ -173,21 +222,29 @@ namespace Redis
             return connection.QueueCommand(parameters);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand Incr(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("INCR", key);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand IncrBy(this RedisConnection connection, RedisValue key, long integer)
         {
             return connection.QueueCommand("INCRBY", key, integer);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand Decr(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("DECR", key);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand DecrBy(this RedisConnection connection, RedisValue key, long integer)
         {
             return connection.QueueCommand("DECRBY", key, integer);
@@ -197,66 +254,95 @@ namespace Redis
 
         #region Commands operating on lists
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand RPush(this RedisConnection connection, RedisValue key, RedisValue value)
         {
             return connection.QueueCommand("RPUSH", key, value);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand LPush(this RedisConnection connection, RedisValue key, RedisValue value)
         {
             return connection.QueueCommand("LPUSH", key, value);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand LLen(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("LLEN", key);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "length of range")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
         public static RedisCommand LRange(this RedisConnection connection, RedisValue key, long start, long end)
         {
             return connection.QueueCommand("LRANGE", key, start, end);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "length of list - length of range")]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand LTrim(this RedisConnection connection, RedisValue key, long start, long end)
         {
             return connection.QueueCommand("LTRIM", key, start, end);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "length of list")]
+        [RedisExpectedResult(RedisValueType.Bulk)]
         public static RedisCommand LIndex(this RedisConnection connection, RedisValue key, long index)
         {
             return connection.QueueCommand("LINDEX", key, index);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "length of list")]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand LSet(this RedisConnection connection, RedisValue key, long index, RedisValue value)
         {
             return connection.QueueCommand("LSET", key, index, value);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "length of list")]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand LRem(this RedisConnection connection, RedisValue key, long count, RedisValue value)
         {
             return connection.QueueCommand("LREM", key, count, value);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Bulk)]
         public static RedisCommand LPop(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("LPOP", key);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Bulk)]
         public static RedisCommand RPop(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("RPOP", key);
         }
 
+        [RedisComplexity(RedisComplexity.Blocking)]
+        [RedisExpectedResult(RedisValueType.Bulk)]
+        [RedisCompatibility(RedisVersion.v1_3_1)]
         public static RedisCommand BLPop(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("BLPOP", key);
         }
 
+        [RedisComplexity(RedisComplexity.Blocking)]
+        [RedisExpectedResult(RedisValueType.Bulk)]
+        [RedisCompatibility(RedisVersion.v1_3_1)]
         public static RedisCommand BRPop(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("BRPOP", key);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Bulk)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand RPopLPush(this RedisConnection connection, RedisValue srckey, RedisValue dstkey)
         {
             return connection.QueueCommand("RPOPLPUSH", srckey, dstkey);
@@ -266,41 +352,57 @@ namespace Redis
 
         #region Commands operating on sets
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand SAdd(this RedisConnection connection, RedisValue key, RedisValue member)
         {
             return connection.QueueCommand("SADD", key, member);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand SRem(this RedisConnection connection, RedisValue key, RedisValue member)
         {
             return connection.QueueCommand("SREM", key, member);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Bulk)]
         public static RedisCommand SPop(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("SPOP", key);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand SMove(this RedisConnection connection, RedisValue srckey, RedisValue dstkey, RedisValue member)
         {
             return connection.QueueCommand("SMOVE", srckey, dstkey, member);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand SCard(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("SCARD");
         }
 
+        [RedisComplexity(RedisComplexity.Linear)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand SMembers(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("SMEMBERS", key);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand SIsMember(this RedisConnection connection, RedisValue key, RedisValue member)
         {
             return connection.QueueCommand("SISMEMBER", key, member);
         }
 
+        [RedisComplexity("N*M where N: cardinality of smallest set; M: number of sets")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
         public static RedisCommand SInter(this RedisConnection connection, RedisValue[] keys)
         {
             RedisValue[] parameters = new RedisValue[keys.Length + 1];
@@ -309,6 +411,8 @@ namespace Redis
             return connection.QueueCommand(keys);
         }
 
+        [RedisComplexity("N*M where N: cardinality of smallest set; M: number of sets")]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand SInterStore(this RedisConnection connection, RedisValue dstkey, RedisValue[] keys)
         {
             RedisValue[] parameters = new RedisValue[keys.Length + 2];
@@ -318,6 +422,8 @@ namespace Redis
             return connection.QueueCommand(keys);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "total number of elements in all of the provided sets")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
         public static RedisCommand SUnion(this RedisConnection connection, RedisValue[] keys)
         {
             RedisValue[] parameters = new RedisValue[keys.Length + 1];
@@ -326,6 +432,8 @@ namespace Redis
             return connection.QueueCommand(keys);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "total number of elements in all of the provided sets")]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand SUnionStore(this RedisConnection connection, RedisValue dstkey, RedisValue[] keys)
         {
             RedisValue[] parameters = new RedisValue[keys.Length + 2];
@@ -335,6 +443,8 @@ namespace Redis
             return connection.QueueCommand(keys);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "total number of elements in all of the provided sets")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
         public static RedisCommand SDiff(this RedisConnection connection, RedisValue[] keys)
         {
             RedisValue[] parameters = new RedisValue[keys.Length + 1];
@@ -343,6 +453,8 @@ namespace Redis
             return connection.QueueCommand(keys);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "total number of elements in all of the provided sets")]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand SDiffStore(this RedisConnection connection, RedisValue dstkey, RedisValue[] keys)
         {
             RedisValue[] parameters = new RedisValue[keys.Length + 2];
@@ -352,6 +464,8 @@ namespace Redis
             return connection.QueueCommand(keys);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Bulk)]
         public static RedisCommand SRandMember(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("SRANDMEMBER", key);
@@ -361,36 +475,57 @@ namespace Redis
 
         #region Commands operating on sorted sets
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ZAdd(this RedisConnection connection, RedisValue key, double score, RedisValue member)
         {
             return connection.QueueCommand("ZADD", key, score, member);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ZRem(this RedisConnection connection, RedisValue key, RedisValue member)
         {
             return connection.QueueCommand("ZREM", key, member);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ZIncrBy(this RedisConnection connection, RedisValue key, double increment, RedisValue member)
         {
             return connection.QueueCommand("ZINCRBY", key, increment, member);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.Bulk)]
+        [RedisCompatibility(RedisVersion.v1_3_4)]
         public static RedisCommand ZRank(this RedisConnection connection, RedisValue key, RedisValue member)
         {
             return connection.QueueCommand("ZRANK", key, member);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.Bulk)]
+        [RedisCompatibility(RedisVersion.v1_3_4)]
         public static RedisCommand ZRevRank(this RedisConnection connection, RedisValue key, RedisValue member)
         {
             return connection.QueueCommand("ZREVRANK", key, member);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ZRange(this RedisConnection connection, RedisValue key, long start, long end)
         {
             return connection.QueueCommand("ZRANGE", key, start, end);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ZRange(this RedisConnection connection, RedisValue key, long start, long end, bool withScores)
         {
             return withScores
@@ -398,11 +533,17 @@ namespace Redis
                 : connection.QueueCommand("ZRANGE", key, start, end);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ZRevRange(this RedisConnection connection, RedisValue key, long start, long end)
         {
             return connection.QueueCommand("ZREVRANGE", key, start, end);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ZRevRange(this RedisConnection connection, RedisValue key, long start, long end, bool withScores)
         {
             return withScores
@@ -410,16 +551,25 @@ namespace Redis
                 : connection.QueueCommand("ZREVRANGE", key, start, end);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ZRangeByScore(this RedisConnection connection, RedisValue key, double min, double max)
         {
             return connection.QueueCommand("ZRANGEBYSCORE", key, min, max);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ZRangeByScore(this RedisConnection connection, RedisValue key, double min, double max, long offset, long count)
         {
             return connection.QueueCommand("ZRANGEBYSCORE", key, min, max, offset, count);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.v1_3_4)]
         public static RedisCommand ZRangeByScore(this RedisConnection connection, RedisValue key, double min, double max, bool withScores)
         {
             return withScores
@@ -427,6 +577,9 @@ namespace Redis
                 : connection.QueueCommand("ZRANGEBYSCORE", key, min, max);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.v1_3_4)]
         public static RedisCommand ZRangeByScore(this RedisConnection connection, RedisValue key, double min, double max, long offset, long count, bool withScores)
         {
             return withScores
@@ -434,27 +587,42 @@ namespace Redis
                 : connection.QueueCommand("ZRANGEBYSCORE", key, min, max, offset, count);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ZCard(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("ZCARD", key);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_1)]
         public static RedisCommand ZScore(this RedisConnection connection, RedisValue key, RedisValue element)
         {
             return connection.QueueCommand("ZSCORE", key, element);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_3_4)]
         public static RedisCommand ZRemRangeByRank(this RedisConnection connection, RedisValue key, long start, long end)
         {
             return connection.QueueCommand("ZREMRANGEBYRANK", key, start, end);
         }
 
+        [RedisComplexity(RedisComplexity.Logarithmic, "number of elements in the sorted set")]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_3_4)]
         public static RedisCommand ZRemRangeByScore(this RedisConnection connection, RedisValue key, double start, double end)
         {
             return connection.QueueCommand("ZREMRANGEBYSCORE", key, start, end);
         }
 
         // TODO: implement WEIGHTS and AGGREGATE
+        [RedisComplexity("O(N) + O(M log(M)) with N being the sum of the sizes of the input sorted sets, and M being the number of elements in the resulting sorted set")]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_3_5)]
         public static RedisCommand ZInter(this RedisConnection connection, RedisValue dstKey, RedisValue[] keys)
         {
             RedisValue[] parameters = new RedisValue[keys.Length + 2];
@@ -465,6 +633,9 @@ namespace Redis
         }
 
         // TODO: implement WEIGHTS and AGGREGATE
+        [RedisComplexity("O(N) + O(M log(M)) with N being the sum of the sizes of the input sorted sets, and M being the number of elements in the resulting sorted set")]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_3_5)]
         public static RedisCommand ZUnion(this RedisConnection connection, RedisValue dstKey, RedisValue[] keys)
         {
             RedisValue[] parameters = new RedisValue[keys.Length + 2];
@@ -478,16 +649,25 @@ namespace Redis
 
         #region Commands operating on hashes
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_3_10)]
         public static RedisCommand HSet(this RedisConnection connection, RedisValue key, RedisValue field, RedisValue value)
         {
             return connection.QueueCommand("HSET", key, field, value);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_3_10)]
         public static RedisCommand HSetNX(this RedisConnection connection, RedisValue key, RedisValue field, RedisValue value)
         {
             return connection.QueueCommand("HSETNX", key, field, value);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "number of fields")]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
+        [RedisCompatibility(RedisVersion.v1_3_10)]
         public static RedisCommand HMSet(this RedisConnection connection, RedisValue key, params KeyValuePair<RedisValue, RedisValue>[] values)
         {
             RedisValue[] parameters = new RedisValue[values.Length * 2 + 2];
@@ -503,14 +683,20 @@ namespace Redis
             return connection.QueueCommand(parameters);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Bulk)]
+        [RedisCompatibility(RedisVersion.v1_3_10)]
         public static RedisCommand HGet(this RedisConnection connection, RedisValue key, RedisValue field)
         {
             return connection.QueueCommand("HGET", key, field);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "number of fields")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.Head)]
         public static RedisCommand HMGet(this RedisConnection connection, RedisValue key, params RedisValue[] fields)
         {
-            RedisValue[] parameters = new RedisValue[values.Length + 2];
+            RedisValue[] parameters = new RedisValue[fields.Length + 2];
             parameters[0] = "HMGET";
             parameters[1] = key;
             int i = 2;
@@ -521,36 +707,57 @@ namespace Redis
             return connection.QueueCommand(parameters);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_3_10)]
         public static RedisCommand HDel(this RedisConnection connection, RedisValue key, RedisValue field)
         {
             return connection.QueueCommand("HDEL", key, field);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_3_10)]
         public static RedisCommand HExists(this RedisConnection connection, RedisValue key, RedisValue field)
         {
             return connection.QueueCommand("HEXISTS", key, field);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_3_10)]
         public static RedisCommand HLen(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("HLEN", key);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "number of fields")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.v1_3_10)]
         public static RedisCommand HKeys(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("HKEYS", key);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "number of fields")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.v1_3_10)]
         public static RedisCommand HVals(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("HVALS", key);
         }
 
+        [RedisComplexity(RedisComplexity.Linear, "number of fields")]
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
+        [RedisCompatibility(RedisVersion.v1_3_10)]
         public static RedisCommand HGetAll(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("HGETALL", key);
         }
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.Integer)]
+        [RedisCompatibility(RedisVersion.v1_3_10)]
         public static RedisCommand HIncrBy(this RedisConnection connection, RedisValue key, RedisValue field, long integer)
         {
             return connection.QueueCommand("HINCRBY", key, field, integer);
@@ -561,6 +768,7 @@ namespace Redis
         #region Sorting
 
         // TODO: Add BY, LIMIT, GET, ASC|DESC ALPHA and STORE options
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
         public static RedisCommand Sort(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("SORT", key);
@@ -570,16 +778,20 @@ namespace Redis
 
         #region Transactions
 
+        [RedisComplexity(RedisComplexity.Constant)]
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand Multi(this RedisConnection connection)
         {
             return connection.QueueCommand("MULTI");
         }
 
+        [RedisExpectedResult(RedisValueType.MultiBulk)]
         public static RedisCommand Exec(this RedisConnection connection)
         {
             return connection.QueueCommand("EXEC");
         }
 
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand Discard(this RedisConnection connection)
         {
             return connection.QueueCommand("DISCARD");
@@ -588,6 +800,7 @@ namespace Redis
         #endregion
 
         #region Publish/Subscribe
+        // Pub/Sub commands are implemented, but there is no way to actually retrieve messages yet
 
         public static RedisCommand Subscribe(this RedisConnection connection, params RedisValue[] classes)
         {
@@ -619,26 +832,31 @@ namespace Redis
 
         #region Persistence control commands
 
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand Save(this RedisConnection connection)
         {
             return connection.QueueCommand("SAVE");
         }
 
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand BgSave(this RedisConnection connection)
         {
             return connection.QueueCommand("BGSAVE");
         }
 
+        [RedisExpectedResult(RedisValueType.Integer)]
         public static RedisCommand LastSave(this RedisConnection connection)
         {
             return connection.QueueCommand("LASTSAVE");
         }
 
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand Shutdown(this RedisConnection connection)
         {
             return connection.QueueCommand("SHUTDOWN");
         }
 
+        [RedisExpectedResult(RedisValueType.StatusCode)]
         public static RedisCommand BgRewriteAOF(this RedisConnection connection)
         {
             return connection.QueueCommand("BGREWRITEAOF");
@@ -866,7 +1084,7 @@ namespace Redis
     public enum RedisValueType : byte
     {
         Error = (byte)'-',
-        Success = (byte)'+',
+        StatusCode = (byte)'+',
         Bulk = (byte)'$',
         MultiBulk = (byte)'*',
         Integer = (byte)':'
@@ -1079,7 +1297,7 @@ namespace Redis
 
         public static RedisValue Success(string errorText)
         {
-            return new RedisValue() { Type = RedisValueType.Success, ErrorText = errorText };
+            return new RedisValue() { Type = RedisValueType.StatusCode, ErrorText = errorText };
         }
 
         #endregion
@@ -1089,7 +1307,7 @@ namespace Redis
         {
             switch (type) {
                 case RedisValueType.Error:
-                case RedisValueType.Success:
+                case RedisValueType.StatusCode:
                 case RedisValueType.Integer:
                     WriteType(stream, type);
                     WriteFollowedByNewline(stream, data);
@@ -1120,7 +1338,7 @@ namespace Redis
                 case -1:
                     throw NewStreamEndedException();
                 case (int)RedisValueType.Error:
-                case (int)RedisValueType.Success:
+                case (int)RedisValueType.StatusCode:
                 case (int)RedisValueType.Integer:
                     result.data = ReadLine(stream);
                     break;
@@ -1177,7 +1395,7 @@ namespace Redis
             sb.Append((char)type);
             switch (type) {
                 case RedisValueType.Error:
-                case RedisValueType.Success:
+                case RedisValueType.StatusCode:
                 case RedisValueType.Integer:
                     sb.AppendLine(GetASCIIStringOrDefault("(BINARY/UNICODE DATA)"));
                     break;
@@ -1198,5 +1416,106 @@ namespace Redis
             return sb.ToString();
         }
         #endregion
+    }
+
+    public enum RedisVersion : int
+    {
+        FirstVersion = 0,
+        v1_0 = 1000000,
+        v1_1 = 1001000,
+        v1_3 = 1003000,
+        v1_3_1 = 1003001,
+        v1_3_4 = 1003004,
+        v1_3_5 = 1003005,
+        v1_3_10 = 1003010,
+        Head = 0x7ffffffe,
+        DistantFuture = 0x7fffffff
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class RedisCompatibilityAttribute : Attribute
+    {
+        readonly RedisVersion minVersion;
+        readonly RedisVersion maxVersion;
+
+        public RedisCompatibilityAttribute(RedisVersion minVersion)
+        {
+            this.minVersion = minVersion;
+            this.maxVersion = RedisVersion.DistantFuture;
+        }
+
+        public RedisCompatibilityAttribute(RedisVersion minVersion, RedisVersion maxVersion)
+        {
+            this.minVersion = minVersion;
+            this.maxVersion = maxVersion;
+        }
+
+        public RedisVersion MinVersion
+        {
+            get { return minVersion; }
+        }
+
+        public RedisVersion MaxVersion
+        {
+            get { return maxVersion; }
+        }
+    }
+
+    public enum RedisComplexity : int
+    {
+        Unknown,
+        Constant,
+        Logarithmic,
+        Linear,
+        Blocking = -1
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class RedisComplexityAttribute : Attribute
+    {
+        readonly RedisComplexity value;
+        readonly string comments;
+
+        public RedisComplexityAttribute(RedisComplexity value)
+        {
+            this.value = value;
+        }
+
+        public RedisComplexityAttribute(string comments)
+        {
+            this.comments = comments;
+        }
+
+        public RedisComplexityAttribute(RedisComplexity value, string comments)
+        {
+            this.value = value;
+            this.comments = comments;
+        }
+
+        public RedisComplexity Value
+        {
+            get { return this.value; }
+        }
+
+        public string Comments
+        {
+            get { return comments; }
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class RedisExpectedResultAttribute : Attribute
+    {
+        readonly RedisValueType valueType;
+
+        public RedisExpectedResultAttribute(RedisValueType valueType)
+        {
+            this.valueType = valueType;
+        }
+
+        public RedisValueType ValueType
+        {
+            get { return valueType; }
+        }
     }
 }

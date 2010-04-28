@@ -508,6 +508,19 @@ namespace Redis
             return connection.QueueCommand("HGET", key, field);
         }
 
+        public static RedisCommand HMGet(this RedisConnection connection, RedisValue key, params RedisValue[] fields)
+        {
+            RedisValue[] parameters = new RedisValue[values.Length + 2];
+            parameters[0] = "HMGET";
+            parameters[1] = key;
+            int i = 2;
+            foreach (RedisValue field in fields) {
+                parameters[i] = field;
+                i++;
+            }
+            return connection.QueueCommand(parameters);
+        }
+
         public static RedisCommand HDel(this RedisConnection connection, RedisValue key, RedisValue field)
         {
             return connection.QueueCommand("HDEL", key, field);

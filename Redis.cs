@@ -533,6 +533,11 @@ namespace Redis
             return connection.QueueCommand("HGETALL", key);
         }
 
+        public static RedisCommand HIncrBy(this RedisConnection connection, RedisValue key, RedisValue field, long integer)
+        {
+            return connection.QueueCommand("HINCRBY", key, field, integer);
+        }
+
         #endregion
 
         #region Sorting

@@ -660,8 +660,12 @@ namespace Redis
         readonly bool sendAllOnRead;
 
         #region Creation/Destruction
-        public RedisConnection()            : this(new RedisConnectionSettings())        {        }
-                public RedisConnection(RedisConnectionSettings settings)
+        public RedisConnection()
+            : this(new RedisConnectionSettings())
+        {
+        }
+        
+        public RedisConnection(RedisConnectionSettings settings)
         {
             sendQueue = new Queue<RedisCommand>();
             receiveQueue = new Queue<RedisCommand>();

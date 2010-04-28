@@ -117,6 +117,11 @@ namespace Redis
             return connection.QueueCommand("SET", key, value);
         }
 
+        public static RedisCommand SetEx(this RedisConnection connection, RedisValue key, RedisValue time, RedisValue value)
+        {
+            return connection.QueueCommand("SETEX", key, time, value);
+        }
+
         public static RedisCommand Get(this RedisConnection connection, RedisValue key)
         {
             return connection.QueueCommand("GET", key);

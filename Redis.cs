@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace Redis
 {
@@ -928,46 +929,54 @@ namespace Redis
         
         public RedisConnection(RedisConnectionSettings settings)
         {
-            sendQueue = new Queue<RedisCommand>();
-            receiveQueue = new Queue<RedisCommand>();
-            sendAllOnRead = settings.SendAllOnRead;
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.NoDelay = settings.NoDelay;
-            socket.SendTimeout = settings.SendTimeout;
-            socket.Connect(settings.Host, settings.Port);
+            try {
+                sendQueue = new Queue<RedisCommand>();
+                receiveQueue = new Queue<RedisCommand>();
+                sendAllOnRead = settings.SendAllOnRead;
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                socket.NoDelay = settings.NoDelay;
+                socket.SendTimeout = settings.SendTimeout;
+                socket.Connect(settings.Host, settings.Port);
+            } catch (Exception e) {
+                throw new RedisException("Unable to create socket!", e);
+            }
             if (!socket.Connected) {
                 socket.Close();
-                throw new IOException("Unable to connect!");
+                throw new RedisException("Unable to connect!");
             }
             try {
                 stream = new NetworkStream(socket);
                 rstream = new BufferedStream(stream, settings.ReadBufferSize);
                 wstream = new BufferedStream(stream, settings.WriteBufferSize);
-            } catch {
+            } catch (Exception e) {
                 socket.Close();
-                throw;
+                throw new RedisException("Unable to create streams!", e);
             }
         }
 
         public void Dispose()
         {
             try {
-                SendAllCommands();
-                ReadAllResults();
-            } finally {
                 try {
-                    wstream.Dispose();
+                    SendAllCommands();
+                    ReadAllResults();
                 } finally {
                     try {
-                        rstream.Dispose();
+                        wstream.Dispose();
                     } finally {
                         try {
-                            stream.Dispose();
+                            rstream.Dispose();
                         } finally {
-                            socket.Close();
+                            try {
+                                stream.Dispose();
+                            } finally {
+                                socket.Close();
+                            }
                         }
                     }
                 }
+            } catch (Exception e) {
+                throw new RedisException("Unable to dispose properly!", e);
             }
         }
         #endregion
@@ -987,14 +996,18 @@ namespace Redis
                 command.WriteTo(wstream);
                 receiveQueue.Enqueue(command);
             }
-            wstream.Flush();
+            try {
+                wstream.Flush();
+            } catch (Exception e) {
+                throw new RedisException("Unable to flush write stream!", e);
+            }
         }
 
         public void ReadAllResults()
         {
             SendAllCommands();
             while (receiveQueue.Count != 0)
-                receiveQueue.Dequeue().WriteTo(wstream);
+                receiveQueue.Dequeue().ReadFrom(rstream);
         }
 
         internal void SendCommand(RedisCommand command)
@@ -1006,7 +1019,11 @@ namespace Redis
                     dequeued.WriteTo(wstream);
                     receiveQueue.Enqueue(dequeued);
                 } while (command != dequeued);
-                wstream.Flush();
+                try {
+                    wstream.Flush();
+                } catch (Exception e) {
+                    throw new RedisException("Unable to flush write stream!", e);
+                }
             }
         }
 
@@ -1044,13 +1061,21 @@ namespace Redis
 
         internal void WriteTo(Stream stream)
         {
-            RedisValue value = new RedisValue() { Type = RedisValueType.MultiBulk, MultiBulkValues = elements };
-            value.WriteTo(stream);
+            try {
+                RedisValue value = new RedisValue() { Type = RedisValueType.MultiBulk, MultiBulkValues = elements };
+                value.WriteTo(stream);
+            } catch (Exception e) {
+                throw new RedisException("Unable to write command to stream!", e);
+            }
         }
 
         internal void ReadFrom(Stream stream)
         {
-            result = RedisValue.ReadFrom(stream);
+            try {
+                result = RedisValue.ReadFrom(stream);
+            } catch (Exception e) {
+                throw new RedisException("Unable to read command result from stream!", e);
+            }
         }
 
         public void Send()
@@ -1188,7 +1213,7 @@ namespace Redis
         void CheckForError()
         {
             if (type == RedisValueType.Error)
-                throw new InvalidOperationException("Redis error: " + BufferToString(data));
+                throw new RedisException(BufferToString(data));
         }
 
 
@@ -1518,4 +1543,29 @@ namespace Redis
             get { return valueType; }
         }
     }
+
+    [Serializable]
+    public class RedisException : Exception
+    {
+        public RedisException()
+        {
+        }
+
+        public RedisException(string message)
+            : base(message)
+        {
+        }
+
+        public RedisException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        protected RedisException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+
+    }
+
 }

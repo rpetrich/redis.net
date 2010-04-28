@@ -483,6 +483,11 @@ namespace Redis
             return connection.QueueCommand("HSET", key, field, value);
         }
 
+        public static RedisCommand HSetNX(this RedisConnection connection, RedisValue key, RedisValue field, RedisValue value)
+        {
+            return connection.QueueCommand("HSETNX", key, field, value);
+        }
+
         public static RedisCommand HMSet(this RedisConnection connection, RedisValue key, params KeyValuePair<RedisValue, RedisValue>[] values)
         {
             RedisValue[] parameters = new RedisValue[values.Length * 2 + 2];
